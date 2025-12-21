@@ -175,9 +175,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const ctx = document.getElementById('statusChart').getContext('2d');
-    const statusLabels = {{ status_counts.keys() | list | tojson | safe }};
-    const statusValues = {{ status_counts.values() | list | tojson | safe }};
-
+ const statusLabels = JSON.parse('{{ status_counts.keys() | list | tojson | safe }}');
+const statusValues = JSON.parse('{{ status_counts.values() | list | tojson | safe }}');
     new Chart(ctx, {
         type: 'doughnut',
         data: {
