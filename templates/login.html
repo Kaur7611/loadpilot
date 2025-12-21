@@ -1,30 +1,87 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
 
-<div class="container">
-  <form method="POST" action="{{ url_for('login') }}">
-    <h2>🚪 Login</h2>
+{% block title %}Sign In • LoadPilot{% endblock %}
 
-    {% with messages = get_flashed_messages() %} {% if messages %}
-    <div class="alert">
-      {% for message in messages %} {{ message }} {% endfor %}
+{% block content %}
+<div class="min-h-[80vh] flex flex-col items-center justify-center relative">
+    
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] -z-10 opacity-50 pointer-events-none"></div>
+
+    <div class="w-full max-w-md p-8 glass rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl relative z-10 animate-fade-in-up">
+        
+        <div class="text-center mb-8">
+            <div class="h-12 w-12 bg-primary rounded-lg mx-auto flex items-center justify-center text-white text-xl font-bold mb-4 shadow-neon">
+                LP
+            </div>
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Welcome Back</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Enter your credentials to access the command center.</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('login') }}" class="space-y-5">
+            
+            <div class="space-y-1">
+                <label for="username" class="text-xs font-bold uppercase tracking-wider text-slate-500">Username</label>
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">👤</span>
+                    <input 
+                        type="text" 
+                        name="username" 
+                        id="username"
+                        placeholder="Dispatcher ID" 
+                        required
+                        class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400"
+                    />
+                </div>
+            </div>
+
+           <div class="space-y-1">
+    <label for="password" class="text-xs font-bold uppercase tracking-wider text-slate-500">Password</label>
+    <div class="relative">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔒</span>
+        <input 
+            type="password" 
+            name="password" 
+            id="password"
+            placeholder="••••••••" 
+            required
+            class="w-full pl-10 pr-12 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-primary transition-all font-medium text-slate-900 dark:text-white"
+        />
+        <button type="button" onclick="togglePassword('password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors focus:outline-none">
+            <span id="eye-icon-password">👁️</span>
+        </button>
     </div>
-    {% endif %} {% endwith %}
-
-    <div class="form-group">
-      <input type="text" name="username" placeholder="Username" required />
-    </div>
-
-    <div class="form-group">
-      <input type="password" name="password" placeholder="Password" required />
-    </div>
-
-    <button type="submit">Login</button>
-
-    <div class="register-link">
-      Don’t have an account?
-      <a href="{{ url_for('register') }}">Register here</a>
-    </div>
-  </form>
 </div>
 
+            <button type="submit" class="w-full py-3 px-4 bg-primary hover:bg-blue-600 text-white font-bold rounded-lg shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                Sign In to Dashboard
+            </button>
+
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 text-center">
+            <p class="text-sm text-slate-500">
+                New to LoadPilot? 
+                <a href="{{ url_for('register') }}" class="text-primary font-bold hover:underline ml-1">Create Account</a>
+            </p>
+        </div>
+
+    </div>
+    
+    <p class="mt-8 text-xs text-slate-400 font-mono">SECURE CONNECTION • 256-BIT ENCRYPTION</p>
+
+</div>
+<script>
+function togglePassword(fieldId) {
+    const passwordField = document.getElementById(fieldId);
+    const eyeIcon = document.getElementById('eye-icon-' + fieldId);
+    
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+        eyeIcon.textContent = "👁️‍🗨️"; // Hide icon
+    } else {
+        passwordField.type = "password";
+        eyeIcon.textContent = "👁️"; // Show icon
+    }
+}
+</script>
 {% endblock %}

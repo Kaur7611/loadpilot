@@ -1,39 +1,35 @@
-# 🚚 LoadPilot - Dispatcher Dashboard (Flask Web App)
+# 🚛 LoadPilot Dispatch Suite
 
-LoadPilot is a Flask-based web dashboard built for trucking company dispatchers. It provides an easy way to manage drivers and loads, view load statuses, and filter/search tasks efficiently — all in one clean interface.
+**LoadPilot** is a professional, full-stack logistics management application designed for small-to-midsize freight brokerages and fleet owners. It digitizes the manual workflow of assigning loads, tracking fleet assets, and monitoring revenue.
 
----
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![Framework](https://img.shields.io/badge/framework-Flask-lightgrey)
 
-## ✨ Features
+## 🚀 Features
 
-- ✅ User login & logout
-- ✅ Add, edit, and delete drivers
-- ✅ Add, edit, and delete loads
-- ✅ Assign loads to drivers
-- ✅ Filter loads by pickup, drop, or status
-- ✅ Pie chart to visualize load status
-- ✅ Export all load data as CSV
-- ✅ Quick tips & helpful UI cues
-- ✅ Clean, responsive dashboard 
+- **Dashboard Command Center**: Real-time overview of active, pending, and delivered loads.
+- **Fleet Management**: Onboard and manage drivers with unique truck IDs and contact info.
+- **Dynamic Logistics Tracking**: Create and edit dispatch manifests with route details (Origin/Destination).
+- **Financial Analytics**: Automatic revenue calculation based on load rates.
+- **Data Portability**: Export dispatch data to CSV for use in legacy accounting software like Excel.
+- **Modern UX/UI**: Responsive "Glassmorphism" design with Dark Mode support and password visibility toggles.
+- **Secure Authentication**: User-specific sessions and password hashing.
 
----
+## 🛠️ Tech Stack
 
-## 📸 Screenshots
+- **Backend**: Python (Flask)
+- **Database**: SQLite with SQLAlchemy ORM
+- **Frontend**: Jinja2 Templates & Tailwind CSS
+- **Authentication**: Flask-Login & Werkzeug Security
 
-| **Login** | **Dashboard** |
-|-----------|----------------|
-| ![Login](screenshots/login.jpeg) | ![Dashboard](screenshots/dashboard.jpeg) |
 
-| **Add Driver** | **Edit Driver** |
-|----------------|-----------------|
-| ![Add Driver](screenshots/add_driver.jpeg) | ![Edit Driver](screenshots/edit_driver.jpeg) |
 
-| **Add Load** | **Edit Load** |
-|--------------|------------------------|
-| ![Add Load](screenshots/add_load.jpeg) | ![Edit Load](screenshots/edit_load.jpeg) |
+## 📦 Installation
 
-## 🚀 How to Run Locally
-# Clone the Repository
-```bash
-git clone https://github.com/Kaur7611/loadpilot.git
-cd loadpilot
+ **Clone the repository:**
+   ```bash
+   git clone [https://github.com/Kaur7611/loadpilot.git](https://github.com/Kaur7611/loadpilot.git)
+   cd loadpilot
+
+

@@ -1,55 +1,88 @@
 {% extends 'base.html' %}
-{% block title %}Edit Driver - LoadPilot{% endblock %}
+{% block title %}Edit Driver • {{ driver.name }}{% endblock %}
 
 {% block content %}
-
-<div class="container">
-  <form method="POST">
-  <h2>Edit Driver</h2>
-
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
-
-    <div class="form-group">
-      <label for="name">Name</label>
-      <input 
-        type="text" 
-        name="name" 
-        id="name" 
-        value="{{ driver.name }}" 
-        required>
+<div class="max-w-2xl mx-auto">
+    
+    <div class="mb-6">
+        <a href="{{ url_for('dashboard') }}" class="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors flex items-center gap-2 text-sm font-medium group">
+            <span class="group-hover:-translate-x-1 transition-transform">←</span> Return to Fleet
+        </a>
     </div>
 
-    <div class="form-group">
-      <label for="truck_number">Truck Number</label>
-      <input 
-        type="text" 
-        name="truck_number" 
-        id="truck_number" 
-        value="{{ driver.truck_number }}" 
-        required>
+    <div class="glass rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+        
+        <div class="p-8 bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg border border-primary/20">
+                    {{ driver.name[:1].upper() }}
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-900 dark:text-white">Edit Driver Profile</h1>
+                    <p class="text-xs text-slate-500 font-mono uppercase tracking-widest">ID: #DRV-{{ driver.id }}</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" class="p-8 space-y-6">
+            
+            <div class="space-y-1">
+                <label for="name" class="text-xs font-bold uppercase tracking-wider text-slate-500">Full Name</label>
+                <input 
+                    type="text" 
+                    name="name" 
+                    id="name"
+                    value="{{ driver.name }}"
+                    required
+                    class="w-full px-4 py-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-primary transition-all font-medium dark:text-white"
+                >
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-1">
+                    <label for="truck_number" class="text-xs font-bold uppercase tracking-wider text-slate-500">Truck Number</label>
+                    <input 
+                        type="text" 
+                        name="truck_number" 
+                        id="truck_number"
+                        value="{{ driver.truck_number }}"
+                        required
+                        class="w-full px-4 py-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-primary transition-all font-mono font-bold text-slate-900 dark:text-white uppercase"
+                    >
+                </div>
+
+                <div class="space-y-1">
+                    <label for="phone" class="text-xs font-bold uppercase tracking-wider text-slate-500">Phone Contact</label>
+                    <input 
+                        type="tel" 
+                        name="phone" 
+                        id="phone"
+                        value="{{ driver.phone }}"
+                        required
+                        class="w-full px-4 py-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-primary transition-all font-medium dark:text-white"
+                    >
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200 dark:border-slate-800">
+                <a href="{{ url_for('dashboard') }}" class="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors">Cancel Changes</a>
+                <button type="submit" class="px-8 py-2.5 bg-primary hover:bg-blue-600 text-white font-bold rounded-lg shadow-lg shadow-blue-500/30 transition-all">
+                    Update Driver
+                </button>
+            </div>
+        </form>
     </div>
 
-    <div class="form-group">
-      <label for="phone">Phone</label>
-      <input 
-        type="text" 
-        name="phone" 
-        id="phone" 
-        value="{{ driver.phone }}" 
-        required>
+    <div class="mt-8 p-6 rounded-2xl border border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10 flex items-center justify-between">
+        <div>
+            <h4 class="text-sm font-bold text-red-600 dark:text-red-400">Danger Zone</h4>
+            <p class="text-xs text-red-500/70">Once you delete a driver, their data and history are gone forever.</p>
+        </div>
+        <a href="{{ url_for('delete_driver', driver_id=driver.id) }}" 
+           onclick="return confirm('Wait! This will permanently delete this driver and unassign their loads. Proceed?')"
+           class="px-4 py-2 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 rounded-lg text-xs font-bold hover:bg-red-600 hover:text-white transition-all">
+            Delete Driver
+        </a>
     </div>
-
-    <button type="submit" class="btn-update">Update Driver</button>
-    <a href="{{ url_for('dashboard') }}" class="btn-link">Cancel</a>
-  </form>
 </div>
-
 {% endblock %}
-
-

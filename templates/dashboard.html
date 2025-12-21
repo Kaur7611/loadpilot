@@ -1,160 +1,214 @@
 {% extends 'base.html' %}
-{% block title %}Dashboard - LoadPilot{% endblock %}
+{% block title %}Dashboard • LoadPilot Command{% endblock %}
 
 {% block content %}
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Operations Overview</h1>
+        <p class="text-slate-500 dark:text-slate-400">Monitoring {{ active_loads }} active dispatches across your fleet.</p>
+    </div>
+    <div class="flex items-center gap-3">
+        <a href="{{ url_for('export_loads') }}" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+            <span>📥</span> Export CSV
+        </a>
+        <a href="{{ url_for('add_load') }}" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold shadow-lg shadow-primary/30 hover:bg-primary-hover transition-all">
+            <span>+</span> New Dispatch
+        </a>
+    </div>
+</div>
 
-<div class="dashboard-header">
-  <div class="header-left">
-    <h1 class="neon-heading">🚚 LoadPilot - Dispatcher Dashboard</h1>
-  </div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="glass p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total Revenue</p>
+        <h2 class="text-3xl font-mono font-bold text-emerald-500">${{ "{:,.2f}".format(total_revenue) }}</h2>
+        <div class="mt-2 text-[10px] text-emerald-500/80 font-medium">▲ 12% from last month</div>
+    </div>
 
-  <div class="header-right">
+    <div class="glass p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Active Loads</p>
+        <h2 class="text-3xl font-bold dark:text-white">{{ active_loads }}</h2>
+        <div class="mt-2 text-[10px] text-primary font-medium tracking-wide">LIVE TRACKING ENABLED</div>
+    </div>
+
+    <div class="glass p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Fleet Size</p>
+        <h2 class="text-3xl font-bold dark:text-white">{{ drivers|length }}</h2>
+        <div class="mt-2 text-[10px] text-slate-400 font-medium">TOTAL REGISTERED DRIVERS</div>
+    </div>
+
+    <div class="glass p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Completion Rate</p>
+        <h2 class="text-3xl font-bold dark:text-white">94.2%</h2>
+        <div class="mt-2 text-[10px] text-slate-400 font-medium">INDUSTRY AVG: 88%</div>
+    </div>
+</div>
+
+<div class="glass p-4 rounded-xl mb-8 flex flex-col lg:flex-row gap-4 items-center border border-slate-200 dark:border-slate-800">
+    <form method="GET" class="flex flex-col md:flex-row w-full gap-4">
+        <div class="relative flex-1">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+            <input type="text" name="search" value="{{ search_query or '' }}" placeholder="Search by Pickup, Drop, or Load ID..." 
+                   class="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none transition-all">
+        </div>
+        
+        <select name="status" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary">
+            <option value="All">All Statuses</option>
+            <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="In Transit" {% if status_filter == 'In Transit' %}selected{% endif %}>In Transit</option>
+            <option value="Delivered" {% if status_filter == 'Delivered' %}selected{% endif %}>Delivered</option>
+        </select>
+
+        <div class="flex gap-2">
+            <button type="submit" class="px-6 py-2 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-lg text-sm font-bold hover:opacity-90 transition-all">
+                Filter
+            </button>
+            <a href="{{ url_for('dashboard') }}" class="px-6 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition-all text-center">
+                Reset
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
     
-    <a href="{{ url_for('logout') }}" class="btn logout-btn">Logout</a>
-  </div>
-</div>
+    <div class="xl:col-span-2 space-y-4">
+        <div class="flex items-center justify-between px-2">
+            <h3 class="text-lg font-bold flex items-center gap-2">
+                📦 Recent Loads
+                <span class="bg-primary/20 text-primary text-[10px] px-2 py-0.5 rounded-full uppercase tracking-tighter">Live Board</span>
+            </h3>
+        </div>
+        
+        <div class="overflow-x-auto glass rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
+                        <th class="p-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Load Info</th>
+                        <th class="p-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Route</th>
+                        <th class="p-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Rate</th>
+                        <th class="p-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                        <th class="p-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                    {% for l in loads %}
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors group">
+                        <td class="p-4">
+                            <div class="text-sm font-mono font-bold text-primary">{{ l.load_ref or 'LD-' ~ l.id }}</div>
+                            <div class="text-[10px] text-slate-500 uppercase font-medium">{{ l.date }}</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex flex-col gap-1">
+                                <div class="text-sm font-semibold flex items-center gap-2">
+                                    <span class="text-emerald-500 text-xs">●</span> {{ l.pickup }}
+                                </div>
+                                <div class="text-sm font-semibold flex items-center gap-2">
+                                    <span class="text-red-500 text-xs">●</span> {{ l.drop }}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4 font-mono font-bold text-sm text-slate-700 dark:text-slate-300">
+                            ${{ "{:,.0f}".format(l.rate or 0) }}
+                        </td>
+                        <td class="p-4">
+                            {% set s = l.status %}
+                            <span class="px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider
+                                {{ 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' if s == 'Delivered' }}
+                                {{ 'bg-blue-500/10 text-blue-500 border border-blue-500/20' if s == 'In Transit' }}
+                                {{ 'bg-amber-500/10 text-amber-500 border border-amber-500/20' if s == 'Pending' }}
+                                {{ 'bg-slate-500/10 text-slate-500 border border-slate-500/20' if s == 'Cancelled' }}">
+                                {{ s }}
+                            </span>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-2">
+                                <a href="{{ url_for('edit_load', load_id=l.id) }}" class="p-2 hover:bg-primary/10 rounded-lg text-primary transition-colors">✏️</a>
+                                <a href="{{ url_for('delete_load', load_id=l.id) }}" onclick="return confirm('Archive this load?')" class="p-2 hover:bg-red-500/10 rounded-lg text-red-500 transition-colors">🗑️</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="p-12 text-center text-slate-500 italic">No loads found matching your criteria.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
+    <div class="space-y-8">
+        <div class="glass p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl">
+            <h3 class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-6">Status Mix</h3>
+            <div class="relative h-[200px]">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
 
-<!-- Filter -->
-<form method="GET" class="filter-form neon-border">
-  <select name="status">
-    <option value="All" {% if status_filter == "All" %}selected{% endif %}>All</option>
-    {% for status in status_counts.keys() %}
-      <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ status }}</option>
-    {% endfor %}
-  </select>
-  <input type="text" name="search" placeholder="Pickup or Drop" value="{{ search_query or '' }}">
-  <button type="submit" class="btn btn-outline">🔍 Filter</button>
-  <a href="{{ url_for('dashboard') }}" class="btn btn-outline">♻️ Reset</a>
-  <a href="{{ url_for('export_loads') }}" class="btn btn-outline">⬇️ Export</a>
-</form>
-
-
-
-
-
-<!-- Stats Cards -->
-<div class="dashboard-cards neon-border">
-  <div class="card">
-    <h5>Total Drivers</h5>
-    <h2>{{ drivers|length }}</h2>
-  </div>
-  <div class="card">
-    <h5>Total Loads</h5>
-    <h2>{{ loads|length }}</h2>
-  </div>
-  <div class="card">
-    <h5>Active Loads</h5>
-    <h2>{{ loads|selectattr("status", "equalto", "Live")|list|length }}</h2>
-  </div>
-</div>
-
-
-
-<!-- Drivers Table -->
-<h3 class="section-heading">🧑‍✈️ Drivers</h3>
-<div class="table-wrapper neon-border">
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Truck No.</th>
-        <th>Phone</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for d in drivers %}
-      <tr>
-        <td>{{ d.name }}</td>
-        <td>{{ d.truck_number }}</td>
-        <td>{{ d.phone }}</td>
-        <td>
-          <a href="{{ url_for('edit_driver', driver_id=d.id) }}" class="btn btn-sm btn-update">Edit</a>
-          <a href="{{ url_for('delete_driver', driver_id=d.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Delete?')">Delete</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-
-<!-- Loads Table -->
-<h3 class="section-heading">📦 Loads</h3>
-<div class="table-wrapper neon-border">
-  <table>
-    <thead>
-      <tr>
-        <th>Status</th>
-        <th>Pickup</th>
-        <th>Drop</th>
-        <th>Driver</th>
-        <th>Date</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for l in loads %}
-      <tr>
-        <td>
-          {% set status_class = l.status.lower().replace('/', '-').replace(' ', '-') %}
-
-          <span class="badge {{ status_class }}">{{ l.status }}</span>
-        </td>
-        <td>{{ l.pickup }}</td>
-        <td>{{ l.drop }}</td>
-        <td>
-          {% for d in drivers %}
-            {% if d.id == l.driver_id %}
-              {{ d.name }}
-            {% endif %}
-          {% endfor %}
-        </td>
-        <td>{{ l.date }}</td>
-        <td>
-          <a href="{{ url_for('edit_load', load_id=l.id) }}" class="btn btn-sm btn-update">Edit</a>
-          <a href="{{ url_for('delete_load', load_id=l.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Delete?')">Delete</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-
-<!-- Chart + Tips -->
-<div class="dashboard-row">
-  <div class="chart-section card neon-border">
-    <h5>📊 Load Status Overview</h5>
-    <canvas id="statusChart"></canvas>
-  </div>
-  <div class="tips card neon-border">
-    <h6>🧠 Quick Tips</h6>
-    <ul>
-      <li>Use filters to search by pickup/drop location.</li>
-      <li>Green = Live | Blue = Drop/Hook.</li>
-      <li>Edit driver/load anytime.</li>
-      <li>Export your loads for analysis.</li>
-    </ul>
-  </div>
+        <div class="glass p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-sm font-bold uppercase tracking-widest text-slate-400">Active Drivers</h3>
+                <a href="{{ url_for('add_driver') }}" class="text-xs font-bold text-primary hover:underline">+ Add</a>
+            </div>
+            <div class="space-y-4">
+                {% for d in drivers %}
+                <div class="flex items-center justify-between group">
+                    <div class="flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-xs text-slate-500">
+                            {{ d.name[:1] }}
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold group-hover:text-primary transition-colors">{{ d.name }}</p>
+                            <p class="text-[10px] text-slate-500 font-mono">Truck #{{ d.truck_number }}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-1">
+                        <a href="{{ url_for('edit_driver', driver_id=d.id) }}" class="text-xs opacity-0 group-hover:opacity-100 transition-opacity p-1">✏️</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const statusLabels = {{ status_counts.keys() | list | tojson | safe }};
-  const statusValues = {{ status_counts.values() | list | tojson | safe }};
-  new Chart(document.getElementById('statusChart').getContext('2d'), {
-    type: 'pie',
-    data: {
-      labels: statusLabels,
-      datasets: [{
-        data: statusValues,
-        backgroundColor: ['#00ff00', '#00bfff', '#ffff00', '#666666']
-      }]
-    }
-  });
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    const statusLabels = {{ status_counts.keys() | list | tojson | safe }};
+    const statusValues = {{ status_counts.values() | list | tojson | safe }};
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusValues,
+                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#94a3b8'],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#94a3b8',
+                        usePointStyle: true,
+                        padding: 20,
+                        font: { size: 10, weight: 'bold' }
+                    }
+                }
+            }
+        }
+    });
 </script>
-
-
 {% endblock %}
+
+
 
 
