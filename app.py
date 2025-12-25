@@ -9,7 +9,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'logistics-command-key-99' # Stronger key in prod
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/loadpilot_pro.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/loadpilot_pro_v2.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
